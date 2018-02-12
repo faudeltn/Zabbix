@@ -1,4 +1,6 @@
 # Zabbix template for monitoring APT package updates.
+Template for monitoring APT packages updates, 
+
 
 # Installation
 1. Copy the apt-updates.sh script to /usr/lib/zabbix/scripts/ directory
