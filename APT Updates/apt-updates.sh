@@ -3,9 +3,9 @@
 # Description:  apt updates info
 
 #
-ZBX_HOSTNAME_PRESENT=$(egrep ^HostnameItem /etc/zabbix/zabbix_agentd.conf -c)
-#echo $ZBX_HOSTNAME_PRESENT
-if [ "$ZBX_HOSTNAME_PRESENT" -ge "1" ]; then
+ZBX_HOSTNAMEITEM_PRESENT=$(egrep ^HostnameItem /etc/zabbix/zabbix_agentd.conf -c)
+#echo $ZBX_HOSTNAMEITEM_PRESENT
+if [ "$ZBX_HOSTNAMEITEM_PRESENT" -ge "1" ]; then
         #ZBX_HOSTNAME=$(egrep ^Hostname /etc/zabbix/zabbix_agentd.conf | cut -d = -f 2)
         ZBX_HOSTNAME=$(hostname)
 else
