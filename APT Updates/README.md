@@ -9,7 +9,8 @@ Template for monitoring APT Regular packages updates and Security packages updat
 # Installation
 
 1. Download apt-updates.sh script.
-# wget https://raw.githubusercontent.com/faudeltn/Zabbix/master/APT Updates/apt-updates.sh
+# wget https://raw.githubusercontent.com/faudeltn/Zabbix/master/APT%20Updates/apt-updates.sh
+
 2. Make it excutable using the command : chmod +x apt-updates.sh
 3. Create a cron job :
 #########################################################################################
