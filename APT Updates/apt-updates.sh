@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Author:       Waderni Lotfi
 # Website       www.yallalabs.com
-# Description:  apt updates info
+# Youtube       https://www.youtube.com/c/YallaLabs
+# Description:  Apt updates Monitor using zabbix
 #
 #
 ZBX_HOSTNAMEITEM_PRESENT=$(egrep ^HostnameItem /etc/zabbix/zabbix_agentd.conf -c)
