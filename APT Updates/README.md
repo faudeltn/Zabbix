@@ -12,7 +12,7 @@ Template for monitoring APT Regular packages updates and Security packages updat
 2. Make it excutable using the command : chmod +x apt-updates.sh
 3. Create a cron job :
 #########################################################################################
-  0 1 * * * root /root/apt-updates.sh | zabbix_sender -z IP-ZABBIX-SERVER -i - >/dev/null
+  0 1 * * * root ./apt-updates.sh | zabbix_sender -z IP-ZABBIX-SERVER -i - >/dev/null
 
 4. Import APT-Updates.xml Template to Zabbix Frontend.
 5. Link the Server to Servers that you want to monitor APT package updates.
