@@ -1,0 +1,67 @@
+---
+- hosts: Centos7
+  become: yes
+  become_method: sudo
+  vars:
+    - zabbix_agent_listenport: 10050
+    - zabbix_agent_ip: "{{ ansible_default_ipv4.address }}"
+    - zabbix_url: "http://192.168.1.151/zabbix"
+    - zabbix_api_user: Admin
+    - zabbix_api_pass: zabbix
+    - zabbix_agent_hostname: "{{ ansible_nodename }}"
+    - zabbix_host_groups: Linux Production Servers
+    - zabbix_link_templates: Template OS Linux
+    - zabbix_create_host: present       # or absent
+    - zabbix_update_host: yes
+    - zabbix_host_status: enabled       # or disabled
+    - zabbix_proxy: null
+    - zabbix_inventory_mode: disabled
+    - zabbix_useuip: 1
+      zabbix_agent_interfaces:
+       - type: 1
+         main: 1
+         useip: "{{ zabbix_useuip }}"
+         ip: "{{ zabbix_agent_ip }}"
+         dns: ""
+         port: "{{ zabbix_agent_listenport }}"
+
+
+  tasks:
+
+   - name: Yum install Zabbix release in RHEL or CentOS
+     yum: name=http://repo.zabbix.com/zabbix/3.4/rhel/{{ ansible_distribution_major_version }}/x86_64/zabbix-release-3.4-2.el{{ ansible_distribution_major_version }}.noarch.rpm
+     when: ansible_os_family == "RedHat"
+
+   - name: Yum install Zabbix agent
+     yum: name=zabbix-agent
+     when: ansible_os_family == "RedHat"
+
+   - name: Yum install policycoreutils-python
+     yum: 
+       name: policycoreutils-python
+       state: installed
+     tags: Selinux
+
+   - name: Allow zabbix_agent to start (SELinux)
+     selinux_permissive:
+        name: zabbix_agent_t
+        permissive: true
+     tags: Selinux
+
+   - name: "Create a new host or update an existing host's info"
+     local_action:
+       module: zabbix_host
+       server_url: "{{ zabbix_url }}"
+       login_user: "{{ zabbix_api_user }}"
+       login_password: "{{ zabbix_api_pass }}"
+       host_name: "{{ zabbix_agent_hostname }}"
+       host_groups: "{{ zabbix_host_groups }}"
+       link_templates: "{{ zabbix_link_templates }}"
+       status: "{{ zabbix_host_status }}"
+       state: "{{ zabbix_create_host }}"
+       force: "{{ zabbix_update_host }}"
+       proxy: "{{ zabbix_proxy }}"
+       inventory_mode: "{{ zabbix_inventory_mode }}"
+       interfaces: "{{ zabbix_agent_interfaces }}"
+       visible_name: "{{ zabbix_visible_hostname|default(zabbix_agent_hostname) }}" 
+     tags: api
