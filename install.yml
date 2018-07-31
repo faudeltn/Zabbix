@@ -15,7 +15,7 @@
     - zabbix_update_host: yes           # or no
     - zabbix_host_status: enabled       # or disabled
     - zabbix_proxy: null                    # or Zabbix Proxy Name
-    - zabbix_inventory_mode: disabled   # or automatic or manual
+    - zabbix_inventory_mode: disabled   # automatic or manual
     - zabbix_useuip: 1
       zabbix_agent_interfaces:
        - type: 1
