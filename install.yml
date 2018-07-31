@@ -48,7 +48,7 @@
         permissive: true
      tags: Selinux
 
-   - name: "Create a new host or update an existing host's info"
+   - name: Create a new host or update an existing host
      local_action:
        module: zabbix_host
        server_url: "{{ zabbix_url }}"
