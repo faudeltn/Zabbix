@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+use strict;
+
+my $EXCLUDES='performance_schema|mysql|sys|information_schema';
+
+my @databases;
+my @tables;
+my @databases = `echo "show databases" | /usr/bin/mysql --skip-column-names | egrep -v "$EXCLUDES" 2>&1`;
+chomp @databases;
+
+print '{"data":[';
+my $i=0;
+foreach my $database (@databases) {
+    print "," if $i > 0;
+    print '{"{#DBNAME}":"';
+    print $database;
+    print '"}';
+    $i++;
+}
+print ']}';
+print "\n";
