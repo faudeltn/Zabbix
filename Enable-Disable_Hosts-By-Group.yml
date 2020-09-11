@@ -8,12 +8,13 @@
 
   vars:
 
-#   zabbix_server_url: https://monitoring.eidosmedia.com # injected by --extra-vars
-#   zabbix_login_user: AnsibleUser # injected by an AWX Credentials
-#   zabbix_login_password: "{{ lookup('lastpass', 'Zabbix API - AnsibleUser') }}" # injected by --extra-vars
-#   zabbix_hostgroup_name: FT/FT-NOPROD # defined in the inventory vars
+#   zabbix_server_url: your zabbix server https://fqdn/zabbix/ # injected by --extra-vars
+#   zabbix_login_user: User with admin privileges # injected by  --extra-vars
+#   zabbix_login_password:  Your Login Password # injected by --extra-vars
+#   zabbix_hostgroup_name: # define the HostGroup Name
 #   zabbix_agent_enabled: true # defined as extra-vars via AWX survey
     zabbix_api_url: "{{ zabbix_server_url }}/api_jsonrpc.php"
+    zabbix_hostgroup_name: "YALLALABS-PROD-LINUX"
 
 
   tasks:
