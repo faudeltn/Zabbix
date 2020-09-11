@@ -1,0 +1,138 @@
+---
+
+#######
+## ansible-playbook zabbix_api.yml --extra-vars "zabbix_server_url=https://zabbix.yallalabs.com/ zabbix_login_user=Admin zabbix_login_password=Password"
+- hosts: localhost
+  gather_facts: false
+  #connection: local
+
+  vars:
+
+#   zabbix_server_url: https://monitoring.eidosmedia.com # injected by --extra-vars
+#   zabbix_login_user: AnsibleUser # injected by an AWX Credentials
+#   zabbix_login_password: "{{ lookup('lastpass', 'Zabbix API - AnsibleUser') }}" # injected by --extra-vars
+#   zabbix_hostgroup_name: FT/FT-NOPROD # defined in the inventory vars
+#   zabbix_agent_enabled: true # defined as extra-vars via AWX survey
+    zabbix_api_url: "{{ zabbix_server_url }}/api_jsonrpc.php"
+
+
+  tasks:
+
+    - name: Get Zabbix API version
+      uri:
+        url: "{{ zabbix_api_url }}"
+        body_format: json
+        body: 
+          jsonrpc: "2.0"
+          method: "apiinfo.version"
+          params: []
+          id: "1"
+        method: POST
+        status_code: 200
+      register: apiinfo
+
+    - debug: var=apiinfo.json.result
+    
+
+    - name: Login into Zabbix API
+      uri:
+        url: "{{ zabbix_api_url }}"
+        body_format: json
+        body:
+          jsonrpc: '2.0'
+          method: "user.login"
+          params:
+            user: "{{ zabbix_login_user }}"
+            password: "{{ zabbix_login_password }}"
+          id: 1
+          auth:
+        method: POST
+        #status_code: 200
+      register: login
+
+    - debug: var=login.json.result verbosity=2
+
+    - name: Get {{ zabbix_hostgroup_name }} hostgroup info
+      uri:
+        url: "{{ zabbix_api_url }}"
+        body_format: json
+        body:
+          jsonrpc: '2.0'
+          method: hostgroup.get
+          params:
+            output: extend
+            filter:
+              name:
+                - "{{ zabbix_hostgroup_name }}"
+          id: 1
+          auth: "{{ login.json.result }}"
+        method: POST
+      register: hostgroupinfo
+
+    - debug: var=hostgroupinfo['json']['result'][0]['groupid']
+
+    - name: Fail if no hostgroup is found
+      fail:
+        msg: "No hostgroup found with name {{ zabbix_hostgroup_name }}."
+      when: hostgroupinfo['json']['result'] | length == 0
+
+    - name: Get {{ zabbix_hostgroup_name }} hosts info
+      uri:
+        url: "{{ zabbix_api_url }}"
+        body_format: json
+        body:
+          jsonrpc: '2.0'
+          method: host.get
+          params:
+            output:
+              - hostid
+            groupids:
+               - "{{ hostgroupinfo['json']['result'][0]['groupid'] }}"
+            tags:
+               - tag: Environment
+                 value: "{{ (env == 'preprd') | ternary('QA','PRD') }}"
+                 operator: 1
+               - tag: Site
+                 value: "{{ site | upper }}"
+                 operator: 1
+          id: 1
+          auth: "{{ login.json.result }}"
+        method: POST
+      register: hostsinfo    
+
+    - debug: var=hostsinfo verbosity=2
+
+    - name: Host Mass Update
+      uri:
+        url: "{{ zabbix_api_url }}"
+        body_format: json
+        # body: "{{ lookup('template','templates/zabbix-massupdate.j2') }}"
+        body: 
+          jsonrpc: '2.0'
+          method: host.massupdate
+          params:
+            hosts: "{{ hostsinfo.json.result | to_nice_json }}"
+            status: "{{ zabbix_agent_enabled | bool | ternary('0','1') }}"
+          id: 1
+          auth: "{{ login.json.result }}"
+        method: POST
+        #status_code: 200
+      register: update-result
+      changed_when: '"OK" in update-result.msg'
+
+    - debug: var=update-result verbosity=2
+
+    - name: Logout from Zabbix
+      uri:
+        url: "{{ zabbix_api_url }}"
+        body_format: json
+        body:
+          jsonrpc: '2.0'
+          method: user.logout
+          params: []
+          id: 1
+          auth: "{{ login.json.result }}"
+        method: POST
+      register: logout
+
+    - debug: var=logout.json.result verbosity=2
