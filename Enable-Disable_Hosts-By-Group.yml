@@ -11,10 +11,9 @@
 #   zabbix_server_url: your zabbix server https://fqdn/zabbix/ # injected by --extra-vars
 #   zabbix_login_user: User with admin privileges # injected by  --extra-vars
 #   zabbix_login_password:  Your Login Password # injected by --extra-vars
-#   zabbix_hostgroup_name: # define the HostGroup Name
-#   zabbix_agent_enabled: true # defined as extra-vars via AWX survey
+#   zabbix_agent_enabled: true or false # true means status eq to 0, false means status eq to 1, can be injected via --extra-vars or AWX Survey
     zabbix_api_url: "{{ zabbix_server_url }}/api_jsonrpc.php"
-    zabbix_hostgroup_name: "YALLALABS-PROD-LINUX"
+    zabbix_hostgroup_name: "YALLALABS-PROD-LINUX" # define the HostGroup Name, can be injected via --extra-vars or AWX Survey
 
 
   tasks:
